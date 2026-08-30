@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@farcaster/miniapp-sdk": "latest",
+    "@farcaster/quick-auth": "^0.0.6",
     "lucide-svelte": "latest"
   }
 }

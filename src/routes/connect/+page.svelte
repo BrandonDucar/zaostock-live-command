@@ -14,13 +14,14 @@
   let message = $state('');
   let isOrganizer = $state(false);
   let busy = $state(false);
+  let gateNotice = $state(false);
   let commandMode = $state<'POWERSHELL' | 'CURL' | 'INSTRUCTION'>('POWERSHELL');
   const baseUrl = 'https://zaostock-live-command.pages.dev';
   let command = $derived(commandFor(commandMode, token || '<issued-token>'));
 
   onMount(async () => {
     const response = await fetch('/api/v1/team/session');
-    if (response.ok) isOrganizer = Boolean((await response.json()).member);
+    if (response.ok) isOrganizer = ((await response.json()).permissions ?? []).includes('agent_connect');
   });
 
   function commandFor(mode: typeof commandMode, secret: string) {
@@ -45,6 +46,12 @@
       message = error instanceof Error ? error.message : 'Credential creation failed';
     } finally { busy = false; }
   }
+
+  function explainOrganizerGate() {
+    gateNotice = true;
+    message = 'Organizer authentication is required before Live Command can mint an agent credential.';
+    document.querySelector('.access-callout')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 </script>
 
 <svelte:head><title>Connect an agent | ZAOstock</title><meta name="description" content="Connect any compatible agent to ZAOstock through a scoped bearer credential and standard HTTP endpoint." /></svelte:head>
@@ -60,7 +67,7 @@
   <section class="connection-steps">
     <article><strong>01</strong><div><p class="eyebrow">IDENTIFY</p><h2>Name the connection</h2><label>Connection name<input bind:value={name} placeholder="Event Agent" /></label><label>Runtime<input bind:value={runtime} placeholder="CUSTOM, HERMES, OPENCLAW…" /></label></div></article>
     <article><strong>02</strong><div><p class="eyebrow">SCOPE</p><h2>Choose an authority profile</h2><div class="profile-grid">{#each profiles as profile}<button class:selected={capability === profile.id} onclick={() => capability = profile.id}><span>{#if capability === profile.id}<Check size={16} />{/if}</span><b>{profile.title}</b><small>{profile.note}</small></button>{/each}</div><div class="authority-line"><ShieldCheck size={18} /><span>No profile grants external publishing, critical schedule changes, or spending.</span></div></div></article>
-    <article><strong>03</strong><div><p class="eyebrow">CONNECT</p><h2>Issue and run</h2><p>The token is displayed once. Put it in the agent's secret manager, then verify the connection from its terminal.</p><button class="command-button red" onclick={issueCredential} disabled={!isOrganizer || busy}><PlugZap size={18} /> {busy ? 'Issuing…' : 'Issue agent credential'}</button></div></article>
+    <article><strong>03</strong><div><p class="eyebrow">CONNECT</p><h2>Issue and run</h2><p>The token is displayed once. Put it in the agent's secret manager, then verify the connection from its terminal.</p>{#if isOrganizer}<button class="command-button red" onclick={issueCredential} disabled={busy}><PlugZap size={18} /> {busy ? 'Issuing…' : 'Issue agent credential'}</button>{:else}<button class="command-button gold" onclick={explainOrganizerGate} aria-describedby="credential-gate"><KeyRound size={18} /> Authenticate to continue</button>{/if}{#if gateNotice}<div id="credential-gate" class="credential-gate" role="status"><strong>Organizer session required</strong><span>Open Team Access, authenticate, then return here to issue the scoped credential.</span><a href="/team">Open team access</a></div>{/if}</div></article>
   </section>
 
   {#if message}<p class="workspace-message">{message}</p>{/if}

@@ -3,7 +3,40 @@ type Database = import('@cloudflare/workers-types').D1Database;
 export interface TeamIdentity {
   id: string;
   name: string;
-  role: 'OWNER' | 'ADMIN' | 'STAGE_MANAGER' | 'CREW_LEAD' | 'MARKETING';
+  role: 'OWNER' | 'ADMIN' | 'STAGE_MANAGER' | 'CREW_LEAD' | 'MARKETING' | 'OBSERVER';
+}
+
+export type TeamAction =
+  | 'agent_connect'
+  | 'approve'
+  | 'program_save'
+  | 'program_move'
+  | 'program_substitute'
+  | 'crew_save'
+  | 'crew_checkin'
+  | 'task_save'
+  | 'marketing_generate'
+  | 'marketing_approve'
+  | 'question_answer'
+  | 'blackboard_post'
+  | 'scenario'
+  | 'reset';
+
+const permissionsByRole: Record<TeamIdentity['role'], TeamAction[]> = {
+  OWNER: ['agent_connect', 'approve', 'program_save', 'program_move', 'program_substitute', 'crew_save', 'crew_checkin', 'task_save', 'marketing_generate', 'marketing_approve', 'question_answer', 'blackboard_post', 'scenario', 'reset'],
+  ADMIN: ['agent_connect', 'approve', 'program_save', 'program_move', 'program_substitute', 'crew_save', 'crew_checkin', 'task_save', 'marketing_generate', 'marketing_approve', 'question_answer', 'blackboard_post', 'scenario', 'reset'],
+  STAGE_MANAGER: ['approve', 'program_save', 'program_move', 'program_substitute', 'crew_save', 'crew_checkin', 'task_save', 'question_answer', 'blackboard_post', 'scenario'],
+  CREW_LEAD: ['crew_save', 'crew_checkin', 'task_save', 'question_answer', 'blackboard_post'],
+  MARKETING: ['marketing_generate', 'marketing_approve', 'blackboard_post'],
+  OBSERVER: []
+};
+
+export function teamPermissions(identity?: TeamIdentity): TeamAction[] {
+  return identity ? permissionsByRole[identity.role] ?? [] : [];
+}
+
+export function canTeamAct(identity: TeamIdentity | undefined, action: TeamAction): boolean {
+  return teamPermissions(identity).includes(action);
 }
 
 export async function sha256(value: string): Promise<string> {

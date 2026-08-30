@@ -4,6 +4,7 @@ declare global {
       env?: {
         DB?: import('@cloudflare/workers-types').D1Database;
         ADMIN_BOOTSTRAP_SECRET?: string;
+        FARCASTER_ADMIN_FIDS?: string;
       };
     }
   }

@@ -10,7 +10,10 @@ export const GET: RequestHandler = ({ url }) => apiJson({
   },
   servers: [{ url: url.origin }],
   components: {
-    securitySchemes: { agentBearer: { type: 'http', scheme: 'bearer' } }
+    securitySchemes: {
+      agentBearer: { type: 'http', scheme: 'bearer' },
+      farcasterQuickAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'Farcaster Quick Auth JWT' }
+    }
   },
   paths: {
     '/api/v1/health': { get: { summary: 'Runtime and D1 health', responses: { '200': { description: 'Healthy' } } } },
@@ -27,6 +30,7 @@ export const GET: RequestHandler = ({ url }) => apiJson({
     '/api/v1/agents/messages': { post: { summary: 'Post an attributed message to the shared Blackboard', security: [{ agentBearer: [] }], responses: { '201': { description: 'Blackboard message accepted' }, '401': { description: 'Blackboard scope required' } } } },
     '/api/v1/agents/questions': { post: { summary: 'Ask the operator one bounded, decision-relevant question', security: [{ agentBearer: [] }], responses: { '201': { description: 'Question placed in operator inbox' }, '401': { description: 'Operator-question scope required' } } } },
     '/api/v1/agents/tasks': { post: { summary: 'Claim or advance crew work assigned to the authenticated agent', security: [{ agentBearer: [] }], responses: { '200': { description: 'Task updated with attribution and proof' }, '401': { description: 'Crew task scope required' } } } },
+    '/api/v1/auth/farcaster': { post: { summary: 'Create a safe team session from a verified Farcaster identity', security: [{ farcasterQuickAuth: [] }], responses: { '200': { description: 'Observer or allowlisted admin session created' }, '401': { description: 'Invalid Farcaster identity' } } } },
     '/api/v1/team/session': { get: { summary: 'Read the current role-scoped team session', responses: { '200': { description: 'Team identity or null' } } } },
     '/api/v1/team/invites': { post: { summary: 'Create a one-time admin or crew invite', responses: { '201': { description: 'One-time invite URL' }, '401': { description: 'Owner or admin required' } } } }
   }

@@ -23,7 +23,7 @@
 
   onMount(() => {
     void refresh();
-    void fetch('/api/v1/team/session').then((response) => response.json()).then((payload) => { isTeam = Boolean(payload.member); });
+    void fetch('/api/v1/team/session').then((response) => response.json()).then((payload) => { isTeam = (payload.permissions ?? []).includes('blackboard_post'); });
     const timer = window.setInterval(refresh, 8000);
     return () => window.clearInterval(timer);
   });

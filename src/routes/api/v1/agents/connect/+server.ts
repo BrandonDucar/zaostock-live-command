@@ -1,7 +1,7 @@
 import type { RequestHandler } from './$types';
 import { apiJson, optionsResponse } from '$lib/server/http';
 import { database, loadState, saveState } from '$lib/server/state';
-import { makeToken, sha256, teamIdentity } from '$lib/server/auth';
+import { canTeamAct, makeToken, sha256, teamIdentity } from '$lib/server/auth';
 import { scopesForProfile } from '$lib/agent-contract';
 
 export const GET: RequestHandler = async ({ platform }) => {
@@ -26,7 +26,7 @@ export const POST: RequestHandler = async ({ request, platform, url }) => {
   const db = database(platform);
   if (!db) return apiJson({ ok: false, error: 'D1 binding required' }, { status: 503 });
   const organizer = await teamIdentity(request, db);
-  if (!organizer) return apiJson({ ok: false, error: 'Organizer access required before connecting an agent.' }, { status: 401 });
+  if (!canTeamAct(organizer, 'agent_connect')) return apiJson({ ok: false, error: 'Owner or admin access required before connecting an agent.' }, { status: 403 });
   const body = await request.json() as { name?: string; runtime?: string; capability?: string };
   const name = body.name?.trim();
   if (!name) return apiJson({ ok: false, error: 'Agent name is required' }, { status: 400 });
