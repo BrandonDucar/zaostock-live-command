@@ -1,0 +1,24 @@
+{
+  "service": "zaostock-live-command",
+  "verifiedAt": "2026-08-30T14:19:00Z",
+  "sourceCommit": "ea5db08",
+  "canonicalUrl": "https://zaostock-live-command.pages.dev",
+  "deploymentUrl": "https://a237de88.zaostock-live-command.pages.dev",
+  "checks": {
+    "externalHealth": true,
+    "database": "REACHABLE",
+    "initialPulse": 91,
+    "scenario": "stream-down",
+    "scenarioReality": "SIMULATED",
+    "pulseAfterScenario": 69,
+    "mediaAfterScenario": "OFFLINE",
+    "flightRecorderSource": "D1",
+    "farcasterManifestName": "ZAOstock Live Command",
+    "resetPulse": 91
+  },
+  "limits": [
+    "Farcaster accountAssociation still requires a domain-owner signature.",
+    "Base.dev registration still requires the owner's account.",
+    "Festival inputs remain rehearsed fixtures until live October 3 integrations are connected."
+  ]
+}
