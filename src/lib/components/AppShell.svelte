@@ -1,16 +1,25 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { BookOpen, Command, Radio, RotateCcw, Users } from 'lucide-svelte';
+  import { BookOpen, Bot, CalendarRange, Command, Ellipsis, ListChecks, Megaphone, Radio, RotateCcw, Share2, UserRoundCog, Users } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
 
   let { children }: { children: Snippet } = $props();
 
   const links = [
     { href: '/', label: 'Command', icon: Command },
-    { href: '/crowd', label: 'Crowd', icon: Radio },
-    { href: '/crew', label: 'Crew', icon: Users },
+    { href: '/program', label: 'Program', icon: CalendarRange },
+    { href: '/staff', label: 'Staff', icon: UserRoundCog },
+    { href: '/work', label: 'Work', icon: ListChecks },
+    { href: '/marketing', label: 'Marketing', icon: Megaphone },
+    { href: '/crowd', label: 'Crowd', icon: Radio }
+  ];
+
+  const moreLinks = [
+    { href: '/connect', label: 'Connect agent', icon: Bot },
+    { href: '/team', label: 'Share with team', icon: Share2 },
+    { href: '/crew', label: 'Crew view', icon: Users },
     { href: '/replay', label: 'Replay', icon: RotateCcw },
-    { href: '/developers', label: 'API', icon: BookOpen }
+    { href: '/developers', label: 'API docs', icon: BookOpen }
   ];
 </script>
 
@@ -31,14 +40,23 @@
           <span>{link.label}</span>
         </a>
       {/each}
+      <details class="more-menu">
+        <summary class:active={moreLinks.some((link) => $page.url.pathname === link.href)}><Ellipsis size={20} /><span>More</span></summary>
+        <div>
+          {#each moreLinks as link}
+            <a href={link.href} class:active={$page.url.pathname === link.href}>
+              <link.icon size={17} /> <span>{link.label}</span>
+            </a>
+          {/each}
+        </div>
+      </details>
     </nav>
 
     <div class="date-stamp">
       <span>OCT 03</span>
-      <small>ATLANTA</small>
+      <small>ELLSWORTH, ME</small>
     </div>
   </header>
 
   <main>{@render children()}</main>
 </div>
-

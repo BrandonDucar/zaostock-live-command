@@ -1,5 +1,19 @@
-import { approveRecovery, claimTask, createInitialState, hermesAnswer, injectScenario } from '$lib/conductor';
-import type { EventState, ScenarioId } from '$lib/types';
+import {
+  approveMarketingDraft,
+  approveRecovery,
+  claimTask,
+  createInitialState,
+  generateMarketingDraft,
+  hermesAnswer,
+  injectScenario,
+  moveProgramItem,
+  saveTask,
+  saveCrewMember,
+  saveProgramItem,
+  setCrewCheckIn,
+  substituteProgramItem
+} from '$lib/conductor';
+import type { CrewMember, CrewTask, EventState, MarketingDraft, ProgramItem, ScenarioId } from '$lib/types';
 
 type Database = import('@cloudflare/workers-types').D1Database;
 
@@ -13,7 +27,31 @@ export async function loadState(db?: Database): Promise<{ state: EventState; sou
   if (!row?.state_json) return { state: createInitialState(), source: 'FALLBACK' };
 
   try {
-    return { state: JSON.parse(row.state_json) as EventState, source: 'D1' };
+    const baseline = createInitialState();
+    const parsed = JSON.parse(row.state_json) as Partial<EventState>;
+    const state: EventState = {
+      ...baseline,
+      ...parsed,
+      program: (parsed.program ?? baseline.program).map((item) => ({
+        ...item,
+        status: item.status ?? 'HOLD'
+      })),
+      crew: (parsed.crew ?? baseline.crew).map((member) => ({
+        ...member,
+        role: member.role ?? member.capability ?? 'Event Staff',
+        shiftStartMinute: member.shiftStartMinute ?? 14 * 60,
+        shiftEndMinute: member.shiftEndMinute ?? 19 * 60,
+        assignment: member.assignment ?? 'Unassigned'
+      })),
+      tasks: (parsed.tasks ?? baseline.tasks).map((task) => {
+        const legacyStatus = String(task.status);
+        return { ...task, progress: task.progress ?? (legacyStatus === 'DONE' ? 100 : 0), status: legacyStatus === 'OPEN' ? 'QUEUED' : legacyStatus } as CrewTask;
+      }),
+      marketingDrafts: parsed.marketingDrafts ?? baseline.marketingDrafts,
+      agentConnections: parsed.agentConnections ?? baseline.agentConnections,
+      systems: { ...baseline.systems, ...(parsed.systems ?? {}) }
+    };
+    return { state, source: 'D1' };
   } catch {
     return { state: createInitialState(), source: 'FALLBACK' };
   }
@@ -46,8 +84,16 @@ export async function mutateState(db: Database | undefined, body: Record<string,
   if (type === 'scenario') state = injectScenario(state, String(body.scenario) as ScenarioId);
   else if (type === 'approve') state = approveRecovery(state, String(body.optionId ?? ''));
   else if (type === 'claim') state = claimTask(state, String(body.taskId ?? ''), String(body.name ?? 'Crew'));
+  else if (type === 'program_save') state = saveProgramItem(state, body.item as ProgramItem);
+  else if (type === 'program_move') state = moveProgramItem(state, String(body.id ?? ''), Number(body.direction) < 0 ? -1 : 1);
+  else if (type === 'program_substitute') state = substituteProgramItem(state, String(body.id ?? ''), String(body.title ?? ''));
+  else if (type === 'crew_save') state = saveCrewMember(state, body.member as CrewMember);
+  else if (type === 'crew_checkin') state = setCrewCheckIn(state, String(body.id ?? ''), Boolean(body.checkedIn));
+  else if (type === 'task_save') state = saveTask(state, body.task as CrewTask);
+  else if (type === 'marketing_generate') state = generateMarketingDraft(state, String(body.programItemId ?? ''), String(body.platform ?? 'FARCASTER') as MarketingDraft['platform']);
+  else if (type === 'marketing_approve') state = approveMarketingDraft(state, String(body.id ?? ''));
   else if (type === 'reset') state = createInitialState();
-  else throw new Error('Unsupported mutation. Use scenario, approve, claim, or reset.');
+  else throw new Error('Unsupported mutation type.');
 
   await saveState(db, state);
   return state;
@@ -57,4 +103,3 @@ export async function answerQuestion(db: Database | undefined, question: string)
   const { state } = await loadState(db);
   return { answer: hermesAnswer(state, question), state };
 }
-

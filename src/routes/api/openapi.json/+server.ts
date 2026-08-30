@@ -17,7 +17,10 @@ export const GET: RequestHandler = ({ url }) => apiJson({
     },
     '/api/v1/scenarios': { get: { summary: 'List rehearsal scenarios', responses: { '200': { description: 'Scenarios' } } } },
     '/api/v1/ask': { post: { summary: 'Ask Hermes a deterministic state question', responses: { '200': { description: 'State-derived answer' } } } },
-    '/api/v1/events': { get: { summary: 'Read the event flight recorder', responses: { '200': { description: 'Event list' } } } }
+    '/api/v1/events': { get: { summary: 'Read the event flight recorder', responses: { '200': { description: 'Event list' } } } },
+    '/api/v1/agents/connect': { post: { summary: 'Create a scoped, one-time agent credential (organizer required)', responses: { '201': { description: 'Agent handoff packet' }, '401': { description: 'Organizer access required' } } } },
+    '/api/v1/agents/context': { get: { summary: 'Read role-scoped event context with a bearer token', responses: { '200': { description: 'Agent context and work queue' }, '401': { description: 'Invalid credential' } } } },
+    '/api/v1/team/session': { get: { summary: 'Read the current role-scoped team session', responses: { '200': { description: 'Team identity or null' } } } },
+    '/api/v1/team/invites': { post: { summary: 'Create a one-time admin or crew invite', responses: { '201': { description: 'One-time invite URL' }, '401': { description: 'Owner or admin required' } } } }
   }
 });
-

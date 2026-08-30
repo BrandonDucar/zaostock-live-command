@@ -33,9 +33,8 @@ describe('Hermes conductor', () => {
   });
 
   it('lets crew claim an open bounded task', () => {
-    const state = claimTask(createInitialState(), 'task-storefront', 'Alex');
-    expect(state.tasks.find((task) => task.id === 'task-storefront')?.status).toBe('CLAIMED');
+    const state = claimTask(createInitialState(), 'task-staff', 'Alex');
+    expect(state.tasks.find((task) => task.id === 'task-staff')?.status).toBe('CLAIMED');
     expect(state.wire.at(-1)?.message).toContain('Alex');
   });
 });
-

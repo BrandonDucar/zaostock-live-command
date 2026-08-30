@@ -1,6 +1,6 @@
 export type EventMode = 'LIVE' | 'REHEARSAL';
 export type Severity = 'INFO' | 'WATCH' | 'ACTION' | 'CRITICAL';
-export type SystemName = 'STAGE' | 'CREW' | 'BATTLE' | 'MEDIA' | 'TASKS' | 'PROOF';
+export type SystemName = 'STAGE' | 'CREW' | 'BATTLE' | 'MEDIA' | 'TASKS' | 'MARKETING' | 'PROOF';
 export type SystemStatus = 'HEALTHY' | 'WATCH' | 'DEGRADED' | 'OFFLINE';
 export type ScenarioId = 'artist-delay' | 'volunteer-no-show' | 'stream-down' | 'vote-delay';
 
@@ -11,6 +11,8 @@ export interface ProgramItem {
   startMinute: number;
   durationMinutes: number;
   kind: 'MUSIC' | 'BATTLE' | 'STORY' | 'COMMUNITY';
+  status: 'HOLD' | 'CONFIRMED' | 'ARRIVED' | 'LIVE' | 'COMPLETE';
+  notes?: string;
 }
 
 export interface CrewMember {
@@ -19,6 +21,30 @@ export interface CrewMember {
   capability: string;
   checkedIn: boolean;
   available: boolean;
+  role: string;
+  shiftStartMinute: number;
+  shiftEndMinute: number;
+  assignment: string;
+}
+
+export interface MarketingDraft {
+  id: string;
+  programItemId?: string;
+  platform: 'FARCASTER' | 'INSTAGRAM' | 'X' | 'EMAIL' | 'BIG_SCREEN';
+  publishMinute: number;
+  headline: string;
+  body: string;
+  status: 'DRAFT' | 'APPROVED' | 'SCHEDULED';
+  createdBy: 'SIGNAL_MARKETING_AGENT' | 'HUMAN';
+}
+
+export interface AgentConnectionSummary {
+  id: string;
+  name: string;
+  runtime: string;
+  scopes: string[];
+  status: 'CONNECTED' | 'REVOKED';
+  connectedAt: string;
 }
 
 export interface CrewTask {
@@ -28,8 +54,12 @@ export interface CrewTask {
   dueMinute: number;
   durationMinutes: number;
   capability: string;
-  status: 'OPEN' | 'CLAIMED' | 'DONE';
+  status: 'QUEUED' | 'CLAIMED' | 'ACTIVE' | 'PROOF' | 'DONE' | 'BLOCKED';
   assignee?: string;
+  assigneeType?: 'HUMAN' | 'AGENT';
+  progress: number;
+  proof?: string;
+  blockedReason?: string;
 }
 
 export interface WireEvent {
@@ -71,6 +101,8 @@ export interface EventState {
   program: ProgramItem[];
   crew: CrewMember[];
   tasks: CrewTask[];
+  marketingDrafts: MarketingDraft[];
+  agentConnections: AgentConnectionSummary[];
   systems: Record<SystemName, SystemStatus>;
   hermes: HermesState;
   wire: WireEvent[];
@@ -84,4 +116,3 @@ export interface Scenario {
   description: string;
   accent: 'red' | 'gold' | 'denim' | 'olive';
 }
-

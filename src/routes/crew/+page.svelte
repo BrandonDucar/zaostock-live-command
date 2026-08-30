@@ -56,10 +56,10 @@
     <header><div class="hermes-mark"><Zap size={20} /></div><div><p class="eyebrow">HERMES REQUESTS</p><h2>Useful work near you.</h2></div></header>
     <div class="task-list">
       {#each $eventStore.tasks as task}
-        <article class:claimed={task.status !== 'OPEN'}>
+        <article class:claimed={task.status !== 'QUEUED'}>
           <div class="task-time"><strong>{formatTime(task.dueMinute)}</strong><small>{task.durationMinutes} MIN</small></div>
           <div class="task-copy"><span>{task.capability}</span><h3>{task.title}</h3><p><MapPin size={16} /> {task.location}</p></div>
-          {#if task.status === 'OPEN'}
+          {#if task.status === 'QUEUED'}
             <button class="command-button red" onclick={() => claim(task.id)}>Take it</button>
           {:else}
             <div class="claimed-label"><CheckCircle2 size={19} /><span>{task.status}<small>{task.assignee}</small></span></div>

@@ -2,7 +2,7 @@
 
 ![ZAOstock Live Command](static/social-card.png)
 
-ZAOstock Live Command is a live event nervous system: one shared event Reality for stage, crew, WaveWarZ, organizers, and community agents.
+ZAOstock Live Command is a live event operating room: one shared event Reality for stage, crew, WaveWarZ, organizers, and community agents. ZAOstock is scheduled for October 3, 2026 at Franklin Street Parklet in Ellsworth, Maine.
 
 The finals build proves four things:
 
@@ -16,6 +16,12 @@ The finals build proves four things:
 | Surface | Route | Purpose |
 |---|---|---|
 | Command | `/` | Festival control room, Pulse, Hermes, chaos injection |
+| Program | `/program` | Editable run-of-show, reordering, and substitutions |
+| Staff | `/staff` | Roles, shifts, assignments, and check-ins |
+| Work | `/work` | Human and agent work in queue, active, blocked, proof, and done |
+| Marketing | `/marketing` | Signal drafts from shared event Reality; no automatic publishing |
+| Connect | `/connect` | Scoped handoff to ZOE, ZABAL Bot, Zaal's agent, or custom workers |
+| Team | `/team` | Owner bootstrap and one-time role-scoped admin invites |
 | Crowd | `/crowd` | No-login NOW/NEXT, program, WaveWarZ, participation |
 | Crew | `/crew` | Check-in, assignments, bounded Hermes requests |
 | Replay | `/replay` | Flight recorder and candidate lessons |
@@ -39,7 +45,7 @@ curl -X POST https://zaostock-live-command.pages.dev/api/v1/ask \
   -d '{"question":"Are we ready for WaveWarZ?"}'
 ```
 
-OpenAPI: `/api/openapi.json`
+Agent onboarding is available at `/connect`; bearer-authenticated agents orient through `/api/v1/agents/context`. OpenAPI: `/api/openapi.json`.
 
 ## Local development
 

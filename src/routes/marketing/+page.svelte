@@ -1,0 +1,16 @@
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { Check, Clock3, Megaphone, Send, ShieldCheck, Sparkles } from 'lucide-svelte';
+  import { loadEventState, mutateEventState } from '$lib/api';
+  import { eventStore } from '$lib/event-store';
+  import type { MarketingDraft } from '$lib/types';
+  let programItemId = $state(''); let platform = $state<MarketingDraft['platform']>('FARCASTER'); let message = $state(''); let busy = $state(false);
+  onMount(async () => { try { const state = await loadEventState(); eventStore.hydrate(state); programItemId = state.program[0]?.id ?? ''; } catch (error) { message = error instanceof Error ? error.message : 'Could not load marketing workspace'; } });
+  async function generate() { busy = true; try { const state = await mutateEventState({ type: 'marketing_generate', programItemId, platform }); eventStore.hydrate(state); message = 'Signal created a draft from shared event Reality.'; } catch (error) { message = error instanceof Error ? error.message : 'Draft failed'; } finally { busy = false; } }
+  async function approve(id: string) { busy = true; try { const state = await mutateEventState({ type: 'marketing_approve', id }); eventStore.hydrate(state); message = 'Approved internally. No external post was sent.'; } catch (error) { message = error instanceof Error ? error.message : 'Approval failed'; } finally { busy = false; } }
+</script>
+<svelte:head><title>Marketing | ZAOstock</title><meta name="description" content="A bounded ZAOstock marketing agent that drafts from confirmed event Reality." /></svelte:head>
+<div class="workspace-page marketing-page"><section class="workspace-titlebar marketing-hero"><div><p class="eyebrow">SIGNAL / MARKETING AGENT</p><h1>Turn the real event into a signal.</h1><p>Signal drafts from the saved program. It does not invent artists, claim rehearsal events happened, or publish without a human decision.</p></div><div class="agent-badge"><Sparkles size={30} /><strong>SIGNAL</strong><small>BOUNDED · DRAFT ONLY</small></div></section>
+<section class="marketing-composer"><header><Megaphone size={20} /><div><p class="eyebrow">NEW DRAFT</p><h2>Choose a real program block</h2></div></header><div><label>Program<select bind:value={programItemId}>{#each $eventStore.program as item}<option value={item.id}>{item.title} · {item.status}</option>{/each}</select></label><label>Channel<select bind:value={platform}><option>FARCASTER</option><option>INSTAGRAM</option><option>X</option><option>EMAIL</option><option>BIG_SCREEN</option></select></label><button class="command-button red" onclick={generate} disabled={busy}><Sparkles size={18} /> Generate bounded draft</button></div></section>
+{#if message}<p class="workspace-message">{message}</p>{/if}
+<section class="draft-grid">{#each $eventStore.marketingDrafts as draft}<article><header><span>{draft.platform}</span><em>{draft.status}</em></header><p class="eyebrow"><Clock3 size={13} /> SCHEDULE TARGET</p><h2>{draft.headline}</h2><p>{draft.body}</p><footer><small><ShieldCheck size={14} /> {draft.createdBy.replaceAll('_', ' ')}</small>{#if draft.status === 'DRAFT'}<button onclick={() => approve(draft.id)} disabled={busy}><Check size={16} /> Approve internally</button>{:else}<span><Send size={15} /> Not published</span>{/if}</footer></article>{/each}</section></div>

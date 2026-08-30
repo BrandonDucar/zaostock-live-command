@@ -1,6 +1,8 @@
 import type {
   CrewTask,
+  CrewMember,
   EventState,
+  MarketingDraft,
   ProgramItem,
   RecoveryOption,
   Scenario,
@@ -44,18 +46,21 @@ export const scenarios: Scenario[] = [
 ];
 
 const program: ProgramItem[] = [
-  { id: 'welcome', title: 'Gates + Community Warmup', venue: 'Festival Grounds', startMinute: 14 * 60 + 30, durationMinutes: 40, kind: 'COMMUNITY' },
-  { id: 'lyons-den', title: 'Lyons Den', venue: 'Parklet Stage', startMinute: 15 * 60 + 10, durationMinutes: 42, kind: 'MUSIC' },
-  { id: 'wavewarz-story', title: 'WaveWarZ Story', venue: 'Main Stage', startMinute: 16 * 60, durationMinutes: 20, kind: 'STORY' },
-  { id: 'black-moon', title: 'Black Moon', venue: 'Parklet Stage', startMinute: 16 * 60 + 30, durationMinutes: 45, kind: 'MUSIC' },
-  { id: 'wavewarz-final', title: 'WaveWarZ Final', venue: 'Main Stage', startMinute: 17 * 60 + 35, durationMinutes: 35, kind: 'BATTLE' },
-  { id: 'closing', title: 'ZAOstock Closing Set', venue: 'Main Stage', startMinute: 18 * 60 + 25, durationMinutes: 45, kind: 'MUSIC' }
+  { id: 'welcome', title: 'Gates + Community Warmup', venue: 'Franklin Street Parklet', startMinute: 12 * 60, durationMinutes: 30, kind: 'COMMUNITY', status: 'HOLD', notes: 'Rehearsal fixture. Replace with the confirmed event-day plan.' },
+  { id: 'artist-slot-01', title: 'Artist Slot 01', venue: 'ZAOstock Stage', startMinute: 12 * 60 + 30, durationMinutes: 40, kind: 'MUSIC', status: 'HOLD', notes: 'No artist inferred. Organizer confirmation required.' },
+  { id: 'wavewarz-story', title: 'WaveWarZ Story', venue: 'ZAOstock Stage', startMinute: 13 * 60 + 20, durationMinutes: 20, kind: 'STORY', status: 'HOLD', notes: 'Rehearsal fixture. Protect transition buffer.' },
+  { id: 'artist-slot-02', title: 'Artist Slot 02', venue: 'ZAOstock Stage', startMinute: 13 * 60 + 50, durationMinutes: 40, kind: 'MUSIC', status: 'HOLD', notes: 'No artist inferred. Organizer confirmation required.' },
+  { id: 'wavewarz-final', title: 'WaveWarZ Final', venue: 'ZAOstock Stage', startMinute: 14 * 60 + 40, durationMinutes: 35, kind: 'BATTLE', status: 'HOLD', notes: 'Rehearsal fixture. Voting closes before result overlay.' },
+  { id: 'closing', title: 'Closing Artist Slot', venue: 'ZAOstock Stage', startMinute: 15 * 60 + 25, durationMinutes: 45, kind: 'MUSIC', status: 'HOLD', notes: 'No artist inferred. Organizer confirmation required.' }
 ];
 
 const tasks: CrewTask[] = [
-  { id: 'task-storefront', title: 'Partner storefront photo', location: 'South Market Row', dueMinute: 15 * 60 + 50, durationMinutes: 8, capability: 'CONTENT', status: 'OPEN' },
-  { id: 'task-crowd', title: 'WaveWarZ crowd arrival', location: 'Main Stage', dueMinute: 15 * 60 + 55, durationMinutes: 12, capability: 'CONTENT', status: 'CLAIMED', assignee: 'Maya' },
-  { id: 'task-teardown', title: 'Confirm Black Moon teardown lead', location: 'Parklet Stage', dueMinute: 17 * 60 + 12, durationMinutes: 10, capability: 'STAGE', status: 'OPEN' }
+  { id: 'task-lineup', title: 'Replace rehearsal artist slots with confirmed lineup', location: 'Program workspace', dueMinute: 11 * 60, durationMinutes: 25, capability: 'ADMIN', status: 'ACTIVE', assignee: 'Zaal', assigneeType: 'HUMAN', progress: 45 },
+  { id: 'task-agent-handoff', title: 'Connect ZOE or ZABAL Bot to shared event context', location: 'Agent gateway', dueMinute: 11 * 60 + 15, durationMinutes: 12, capability: 'AGENT', status: 'ACTIVE', assignee: 'Hermes', assigneeType: 'AGENT', progress: 68 },
+  { id: 'task-staff', title: 'Confirm event staff roles and shift coverage', location: 'Staff workspace', dueMinute: 11 * 60 + 30, durationMinutes: 20, capability: 'CREW', status: 'QUEUED', progress: 10 },
+  { id: 'task-marketing', title: 'Prepare first lineup reveal draft', location: 'Marketing workspace', dueMinute: 12 * 60, durationMinutes: 15, capability: 'MARKETING', status: 'PROOF', assignee: 'Signal', assigneeType: 'AGENT', progress: 92, proof: 'Draft awaiting organizer approval; nothing published.' },
+  { id: 'task-sitewalk', title: 'Map day-of crew stations at Franklin Street Parklet', location: 'Ellsworth, Maine', dueMinute: 13 * 60, durationMinutes: 30, capability: 'PRODUCTION', status: 'BLOCKED', assignee: 'Event Admin', assigneeType: 'HUMAN', progress: 20, blockedReason: 'Requires an on-site walk or organizer floor plan.' },
+  { id: 'task-proof', title: 'Verify public command surface and agent health', location: 'Cloudflare edge', dueMinute: 10 * 60 + 45, durationMinutes: 8, capability: 'ENGINEERING', status: 'DONE', assignee: 'Codex', assigneeType: 'AGENT', progress: 100, proof: 'Public health and core routes checked.' }
 ];
 
 function event(id: string, atMinute: number, source: WireEvent['source'], severity: WireEvent['severity'], message: string, proofClass: WireEvent['proofClass'] = 'SIMULATED'): WireEvent {
@@ -68,7 +73,7 @@ export function createInitialState(): EventState {
     eventName: 'ZAOstock',
     eventDate: '2026-10-03',
     mode: 'REHEARSAL',
-    clockMinute: 15 * 60 + 42,
+    clockMinute: 12 * 60 + 42,
     clockSecond: 17,
     scheduleDriftMinutes: 3,
     pulse: 91,
@@ -76,18 +81,32 @@ export function createInitialState(): EventState {
     voteDelayMinutes: 0,
     program: structuredClone(program),
     crew: [
-      { id: 'crew-maya', name: 'Maya', capability: 'CONTENT', checkedIn: true, available: false },
-      { id: 'crew-alex', name: 'Alex', capability: 'CONTENT', checkedIn: true, available: true },
-      { id: 'crew-jules', name: 'Jules', capability: 'STAGE', checkedIn: true, available: true },
-      { id: 'crew-noah', name: 'Noah', capability: 'MEDIA', checkedIn: true, available: true }
+      { id: 'crew-maya', name: 'Maya', capability: 'CONTENT', checkedIn: true, available: false, role: 'Photographer', shiftStartMinute: 14 * 60 + 45, shiftEndMinute: 18 * 60, assignment: 'WaveWarZ crowd arrival' },
+      { id: 'crew-alex', name: 'Alex', capability: 'CONTENT', checkedIn: true, available: true, role: 'Content Runner', shiftStartMinute: 15 * 60, shiftEndMinute: 19 * 60, assignment: 'Roaming coverage' },
+      { id: 'crew-jules', name: 'Jules', capability: 'STAGE', checkedIn: true, available: true, role: 'Stage Assistant', shiftStartMinute: 14 * 60, shiftEndMinute: 19 * 60, assignment: 'Parklet changeovers' },
+      { id: 'crew-noah', name: 'Noah', capability: 'MEDIA', checkedIn: true, available: true, role: 'Stream Operator', shiftStartMinute: 14 * 60 + 30, shiftEndMinute: 19 * 60 + 30, assignment: 'Primary + standby stream' }
     ],
     tasks: structuredClone(tasks),
+    marketingDrafts: [
+      {
+        id: 'marketing-wavewarz-countdown',
+        programItemId: 'wavewarz-story',
+        platform: 'FARCASTER',
+        publishMinute: 15 * 60 + 40,
+        headline: 'WaveWarZ starts in 20 minutes',
+        body: 'Make your way to the Main Stage. The story begins at 4:00 PM, then the crowd helps carry the battle.',
+        status: 'DRAFT',
+        createdBy: 'SIGNAL_MARKETING_AGENT'
+      }
+    ],
+    agentConnections: [],
     systems: {
       STAGE: 'WATCH',
       CREW: 'HEALTHY',
       BATTLE: 'HEALTHY',
       MEDIA: 'HEALTHY',
       TASKS: 'WATCH',
+      MARKETING: 'WATCH',
       PROOF: 'HEALTHY'
     },
     hermes: {
@@ -133,10 +152,11 @@ export function evaluateState(input: EventState): EventState {
   const state = structuredClone(input);
   const systems: Record<SystemName, SystemStatus> = {
     STAGE: state.scheduleDriftMinutes >= 9 ? 'DEGRADED' : state.scheduleDriftMinutes >= 3 ? 'WATCH' : 'HEALTHY',
-    CREW: state.crew.some((member) => !member.checkedIn) ? 'DEGRADED' : state.tasks.some((task) => task.status === 'OPEN') ? 'WATCH' : 'HEALTHY',
+    CREW: state.crew.some((member) => !member.checkedIn) ? 'DEGRADED' : state.tasks.some((task) => task.status === 'QUEUED' || task.status === 'BLOCKED') ? 'WATCH' : 'HEALTHY',
     BATTLE: state.voteDelayMinutes >= 5 ? 'DEGRADED' : state.voteDelayMinutes > 0 ? 'WATCH' : 'HEALTHY',
     MEDIA: state.streamHealthy ? 'HEALTHY' : 'OFFLINE',
-    TASKS: state.tasks.some((task) => task.status === 'OPEN' && task.dueMinute <= state.clockMinute + 15) ? 'DEGRADED' : state.tasks.some((task) => task.status === 'OPEN') ? 'WATCH' : 'HEALTHY',
+    TASKS: state.tasks.some((task) => task.status === 'BLOCKED' || (task.status === 'QUEUED' && task.dueMinute <= state.clockMinute + 15)) ? 'DEGRADED' : state.tasks.some((task) => !['DONE', 'PROOF'].includes(task.status)) ? 'WATCH' : 'HEALTHY',
+    MARKETING: state.marketingDrafts.some((draft) => draft.status === 'APPROVED') ? 'HEALTHY' : state.marketingDrafts.length ? 'WATCH' : 'DEGRADED',
     PROOF: 'HEALTHY'
   };
 
@@ -146,7 +166,7 @@ export function evaluateState(input: EventState): EventState {
   pulse -= state.streamHealthy ? 0 : 22;
   pulse -= Math.min(14, state.voteDelayMinutes * 2);
   pulse -= state.crew.filter((member) => !member.checkedIn).length * 10;
-  pulse -= state.tasks.filter((task) => task.status === 'OPEN' && task.dueMinute <= state.clockMinute + 15).length * 5;
+  pulse -= state.tasks.filter((task) => task.status === 'BLOCKED' || (task.status === 'QUEUED' && task.dueMinute <= state.clockMinute + 15)).length * 5;
   state.pulse = Math.max(0, Math.round(pulse));
 
   const risks: string[] = [];
@@ -155,7 +175,8 @@ export function evaluateState(input: EventState): EventState {
   if (!state.streamHealthy) risks.push('Primary stream is offline; local program can continue while Media switches paths.');
   if (state.crew.some((member) => !member.checkedIn)) risks.push('A scheduled crew member has not checked in.');
   if (state.voteDelayMinutes > 0) risks.push(`WaveWarZ voting is delayed by ${state.voteDelayMinutes} minutes.`);
-  if (state.tasks.some((task) => task.status === 'OPEN')) risks.push(`${state.tasks.filter((task) => task.status === 'OPEN').length} crew tasks remain open.`);
+  if (state.tasks.some((task) => task.status === 'BLOCKED')) risks.push(`${state.tasks.filter((task) => task.status === 'BLOCKED').length} work item is blocked.`);
+  if (state.tasks.some((task) => task.status === 'QUEUED')) risks.push(`${state.tasks.filter((task) => task.status === 'QUEUED').length} work item is waiting to be claimed.`);
 
   state.hermes.riskSummary = risks;
   if (state.scheduleDriftMinutes >= 9) {
@@ -206,8 +227,10 @@ export function injectScenario(input: EventState, scenario: ScenarioId): EventSt
     if (member) member.checkedIn = false;
     const affected = state.tasks.find((task) => task.id === 'task-crowd');
     if (affected) {
-      affected.status = 'OPEN';
+      affected.status = 'QUEUED';
       affected.assignee = undefined;
+      affected.assigneeType = undefined;
+      affected.progress = 0;
     }
     state = addWire(state, 'CREW', 'ACTION', 'Content volunteer did not check in. Coverage search started.', scenario);
   }
@@ -240,10 +263,105 @@ export function approveRecovery(input: EventState, optionId: string): EventState
 export function claimTask(input: EventState, taskId: string, name: string): EventState {
   let state = structuredClone(input);
   const task = state.tasks.find((candidate) => candidate.id === taskId);
-  if (!task || task.status !== 'OPEN') return state;
+  if (!task || task.status !== 'QUEUED') return state;
   task.status = 'CLAIMED';
   task.assignee = name;
+  task.assigneeType = 'HUMAN';
+  task.progress = Math.max(task.progress, 5);
   state = addWire(state, 'CREW', 'INFO', `${name} took "${task.title}".`, `claim-${taskId}`);
+  return evaluateState(state);
+}
+
+export function saveTask(input: EventState, task: CrewTask): EventState {
+  let state = structuredClone(input);
+  const index = state.tasks.findIndex((candidate) => candidate.id === task.id);
+  const normalized = { ...task, progress: Math.max(0, Math.min(100, Number(task.progress) || 0)) };
+  if (index >= 0) state.tasks[index] = normalized;
+  else state.tasks.push({ ...normalized, id: task.id || `task-${Date.now()}` });
+  state = addWire(state, 'TASKS', task.status === 'BLOCKED' ? 'WATCH' : 'INFO', `Work updated: ${task.title} is ${task.status}.`, `task-${task.id}`);
+  return evaluateState(state);
+}
+
+export function saveProgramItem(input: EventState, item: ProgramItem): EventState {
+  let state = structuredClone(input);
+  const index = state.program.findIndex((candidate) => candidate.id === item.id);
+  if (index >= 0) state.program[index] = { ...item };
+  else state.program.push({ ...item, id: item.id || `program-${Date.now()}` });
+  state.program.sort((a, b) => a.startMinute - b.startMinute);
+  state = addWire(state, 'STAGE', 'INFO', `Lineup saved: ${item.title} at ${formatTime(item.startMinute)}.`, `program-${item.id}`);
+  return evaluateState(state);
+}
+
+export function moveProgramItem(input: EventState, id: string, direction: -1 | 1): EventState {
+  let state = structuredClone(input);
+  const ordered = [...state.program].sort((a, b) => a.startMinute - b.startMinute);
+  const index = ordered.findIndex((item) => item.id === id);
+  const target = index + direction;
+  if (index < 0 || target < 0 || target >= ordered.length) return state;
+  const currentStart = ordered[index].startMinute;
+  ordered[index].startMinute = ordered[target].startMinute;
+  ordered[target].startMinute = currentStart;
+  state.program = ordered.sort((a, b) => a.startMinute - b.startMinute);
+  state = addWire(state, 'STAGE', 'INFO', `Lineup order changed: ${ordered[target].title}.`, `move-${id}`);
+  return evaluateState(state);
+}
+
+export function substituteProgramItem(input: EventState, id: string, title: string): EventState {
+  let state = structuredClone(input);
+  const item = state.program.find((candidate) => candidate.id === id);
+  if (!item || !title.trim()) return state;
+  const previous = item.title;
+  item.title = title.trim();
+  item.status = 'HOLD';
+  item.notes = `Substituted for ${previous}. Confirmation required.`;
+  state = addWire(state, 'STAGE', 'ACTION', `${previous} substituted with ${item.title}; confirmation required.`, `sub-${id}`);
+  return evaluateState(state);
+}
+
+export function saveCrewMember(input: EventState, member: CrewMember): EventState {
+  let state = structuredClone(input);
+  const index = state.crew.findIndex((candidate) => candidate.id === member.id);
+  if (index >= 0) state.crew[index] = { ...member };
+  else state.crew.push({ ...member, id: member.id || `crew-${Date.now()}` });
+  state = addWire(state, 'CREW', 'INFO', `Staff schedule saved: ${member.name}, ${member.role}.`, `crew-${member.id}`);
+  return evaluateState(state);
+}
+
+export function setCrewCheckIn(input: EventState, id: string, checkedIn: boolean): EventState {
+  let state = structuredClone(input);
+  const member = state.crew.find((candidate) => candidate.id === id);
+  if (!member) return state;
+  member.checkedIn = checkedIn;
+  member.available = checkedIn;
+  state = addWire(state, 'CREW', checkedIn ? 'INFO' : 'WATCH', `${member.name} ${checkedIn ? 'checked in' : 'checked out'}.`, `checkin-${id}`);
+  return evaluateState(state);
+}
+
+export function generateMarketingDraft(input: EventState, programItemId: string, platform: MarketingDraft['platform']): EventState {
+  let state = structuredClone(input);
+  const item = state.program.find((candidate) => candidate.id === programItemId);
+  if (!item) return state;
+  const draft: MarketingDraft = {
+    id: `marketing-${Date.now()}`,
+    programItemId: item.id,
+    platform,
+    publishMinute: Math.max(EVENT_DAY_START, item.startMinute - 20),
+    headline: `${item.title} starts in 20 minutes`,
+    body: `Head to ${item.venue}. ${item.title} begins at ${formatTime(item.startMinute)}. Open ZAOstock Live Command for the current program and event updates.`,
+    status: 'DRAFT',
+    createdBy: 'SIGNAL_MARKETING_AGENT'
+  };
+  state.marketingDrafts.push(draft);
+  state = addWire(state, 'MARKETING', 'INFO', `Signal drafted ${platform} coverage for ${item.title}.`, `marketing-${draft.id}`);
+  return evaluateState(state);
+}
+
+export function approveMarketingDraft(input: EventState, id: string): EventState {
+  let state = structuredClone(input);
+  const draft = state.marketingDrafts.find((candidate) => candidate.id === id);
+  if (!draft) return state;
+  draft.status = 'APPROVED';
+  state = addWire(state, 'HUMAN', 'INFO', `Marketing draft approved for ${draft.platform}; no external post sent.`, `marketing-approve-${id}`);
   return evaluateState(state);
 }
 
@@ -296,4 +414,3 @@ export function hermesAnswer(state: EventState, question: string): string {
   }
   return `${state.hermes.statement}${state.hermes.recommendation ? ` Recommendation: ${state.hermes.recommendation}` : ''}`;
 }
-

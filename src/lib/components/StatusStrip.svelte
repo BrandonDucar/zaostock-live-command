@@ -2,7 +2,7 @@
   import { eventStore } from '$lib/event-store';
   import type { SystemName } from '$lib/types';
 
-  const systems: SystemName[] = ['STAGE', 'CREW', 'BATTLE', 'MEDIA', 'TASKS', 'PROOF'];
+  const systems: SystemName[] = ['STAGE', 'CREW', 'BATTLE', 'MEDIA', 'TASKS', 'MARKETING', 'PROOF'];
 </script>
 
 <div class="status-strip" aria-label="Festival system status">
@@ -14,4 +14,3 @@
     </div>
   {/each}
 </div>
-

@@ -1,0 +1,48 @@
+{
+  "artifact": "ZAOstock Live Command team operations upgrade",
+  "verifiedAt": "2026-08-30T14:59:27.4419087Z",
+  "canonicalUrl": "https://zaostock-live-command.pages.dev",
+  "deploymentUrl": "https://b2359594.zaostock-live-command.pages.dev",
+  "reality": {
+    "webApplication": "DEPLOYED",
+    "d1SharedState": "ACTIVE",
+    "teamInviteFlow": "DEPLOYED_NOT_YET_CLAIMED",
+    "agentCredentialFlow": "DEPLOYED_NOT_YET_CONNECTED_TO_EXTERNAL_AGENT",
+    "marketing": "DRAFT_ONLY_NO_EXTERNAL_PUBLICATION",
+    "eventData": "REHEARSAL_FIXTURE"
+  },
+  "verification": {
+    "svelteCheck": "0 errors, 0 warnings",
+    "unitTests": "5 passed, 0 failed",
+    "productionBuild": "PASS",
+    "d1Migrations": [
+      "0002_agent_connections.sql",
+      "0003_team_access.sql"
+    ],
+    "publicRoutes": {
+      "/": 200,
+      "/program": 200,
+      "/staff": 200,
+      "/work": 200,
+      "/marketing": 200,
+      "/connect": 200,
+      "/team": 200,
+      "/crowd": 200,
+      "/developers": 200,
+      "/api/v1/health": 200,
+      "/api/v1/state": 200,
+      "/api/openapi.json": 200
+    },
+    "negativeCanaries": {
+      "unauthenticatedAgentContext": 401,
+      "unauthenticatedAgentCreation": 401
+    }
+  },
+  "remainingExternalProof": [
+    "Zaal claims the one-time OWNER invite",
+    "Owner creates a scoped ZOE or ZABAL Bot connection",
+    "External agent authenticates to /api/v1/agents/context",
+    "Agent completes bounded work and leaves independently reviewed proof",
+    "An organizer replaces all rehearsal lineup fixtures with confirmed data"
+  ]
+}

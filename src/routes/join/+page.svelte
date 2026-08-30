@@ -1,0 +1,8 @@
+<script lang="ts">
+  import { page } from '$app/stores';
+  import { ArrowRight, ShieldCheck, UserRoundPlus } from 'lucide-svelte';
+  let name=$state(''); let message=$state(''); let joined=$state(false); let busy=$state(false);
+  async function join(){busy=true;try{const response=await fetch('/api/v1/team/join',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:$page.url.searchParams.get('token'),name})});const payload=await response.json();if(!response.ok)throw new Error(payload.error);joined=true;message=`Welcome, ${payload.member.name}. You now have ${payload.member.role.replace('_',' ').toLowerCase()} access.`;}catch(error){message=error instanceof Error?error.message:'Join failed';}finally{busy=false;}}
+</script>
+<svelte:head><title>Join the ZAOstock team</title></svelte:head>
+<div class="join-page"><section><UserRoundPlus size={45}/><p class="eyebrow">ZAOSTOCK TEAM INVITE</p><h1>{joined?'You are on the crew.':'Join the command room.'}</h1>{#if !joined}<p>Enter your name to claim this role-scoped invite. You will not receive owner credentials.</p><label>Your name<input bind:value={name} placeholder="Name or call sign" /></label><button class="command-button red" onclick={join} disabled={busy||!name.trim()}>Accept invite <ArrowRight size={18}/></button>{:else}<p class="join-success"><ShieldCheck size={19}/>{message}</p><a class="command-button red" href="/">Open Live Command <ArrowRight size={18}/></a>{/if}{#if message&&!joined}<p class="workspace-message">{message}</p>{/if}</section></div>

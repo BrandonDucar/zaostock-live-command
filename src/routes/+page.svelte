@@ -3,6 +3,8 @@
   import {
     Activity,
     ArrowRight,
+    Bot,
+    CalendarRange,
     Check,
     Clock3,
     CornerDownLeft,
@@ -13,6 +15,9 @@
     ShieldCheck,
     Sparkles,
     TriangleAlert,
+    UserRound,
+    UserRoundCog,
+    Megaphone,
     Zap
   } from 'lucide-svelte';
   import LiveWire from '$lib/components/LiveWire.svelte';
@@ -27,6 +32,13 @@
   let showIntro = $state(false);
   let isRemote = $state(false);
   let programState = $derived(currentProgram($eventStore));
+  let activeWork = $derived($eventStore.tasks.filter((task) => task.status === 'ACTIVE' || task.status === 'CLAIMED'));
+  let setupReady = $derived([
+    $eventStore.agentConnections.length > 0,
+    $eventStore.program.some((item) => item.status !== 'HOLD'),
+    $eventStore.crew.length > 0,
+    $eventStore.marketingDrafts.length > 0
+  ].filter(Boolean).length);
   const canonicalUrl = 'https://zaostock-live-command.pages.dev';
   const miniappEmbed = JSON.stringify({
     version: '1',
@@ -129,13 +141,13 @@
 {#if showIntro}
   <div class="intro-overlay" role="dialog" aria-modal="true" aria-labelledby="intro-title">
     <div class="intro-sheet">
-      <p class="eyebrow">ZABAL GAMEZ FINALS BUILD</p>
-      <h1 id="intro-title">The festival has a nervous system now.</h1>
-      <p>Live Command gives stage, crew, WaveWarZ, and organizers one shared event Reality. Rehearsal mode lets you break it before the crowd arrives.</p>
+      <p class="eyebrow">ZAOSTOCK / TEAM OPERATING ROOM</p>
+      <h1 id="intro-title">Build the lineup. Bring the crew. Hand it to ZOE.</h1>
+      <p>Start with the program and people, connect Zaal's agent, then watch humans and agents move the work together. Rehearsal mode lets the team break the event before the crowd arrives.</p>
       <div class="intro-steps">
-        <span><strong>01</strong> Watch the live pulse</span>
-        <span><strong>02</strong> Inject a real failure</span>
-        <span><strong>03</strong> Approve Hermes' recovery</span>
+        <span><strong>01</strong> Connect ZOE or your agent</span>
+        <span><strong>02</strong> Build lineup and staff</span>
+        <span><strong>03</strong> Run work and rehearsal</span>
       </div>
       <button class="command-button red" onclick={closeIntro}>Enter Live Command <ArrowRight size={20} /></button>
     </div>
@@ -163,6 +175,27 @@
     </div>
   </section>
 
+  <section class="workflow-rail" aria-label="ZAOstock setup workflow">
+    <header>
+      <div><p class="eyebrow">START HERE</p><h2>Build the event, then conduct it.</h2></div>
+      <span>{setupReady}/4 READY</span>
+    </header>
+    <div>
+      <a href="/connect" class:complete={$eventStore.agentConnections.length > 0}>
+        <strong>01</strong><Bot size={22} /><span><b>Connect agent</b><small>Give your agent scoped event context</small></span><ArrowRight size={18} />
+      </a>
+      <a href="/program" class:complete={$eventStore.program.length > 0}>
+        <strong>02</strong><CalendarRange size={22} /><span><b>Build lineup</b><small>Add, reorder, or substitute acts</small></span><ArrowRight size={18} />
+      </a>
+      <a href="/staff" class:complete={$eventStore.crew.length > 0}>
+        <strong>03</strong><UserRoundCog size={22} /><span><b>Schedule staff</b><small>Roles, shifts, assignments, check-ins</small></span><ArrowRight size={18} />
+      </a>
+      <a href="/marketing" class:complete={$eventStore.marketingDrafts.length > 0}>
+        <strong>04</strong><Megaphone size={22} /><span><b>Prepare marketing</b><small>Draft from the real program</small></span><ArrowRight size={18} />
+      </a>
+    </div>
+  </section>
+
   <section class="pulse-band" class:danger={$eventStore.pulse < 75}>
     <div class="pulse-score">
       <Gauge size={30} />
@@ -173,6 +206,15 @@
       <span style={`width: ${$eventStore.pulse}%`}></span>
     </div>
     <div class="evidence-source"><ShieldCheck size={18} /> {isRemote ? 'D1 SHARED STATE' : 'LOCAL REHEARSAL STATE'}</div>
+  </section>
+
+  <section class="command-active-work">
+    <header><Activity size={20} /><div><p class="eyebrow">THE CREW IS WORKING</p><h2>{activeWork.length} active assignments</h2></div><a href="/work">Open work board <ArrowRight size={16} /></a></header>
+    <div>
+      {#each activeWork.slice(0, 4) as task}
+        <article><span class:agent={task.assigneeType === 'AGENT'}>{#if task.assigneeType === 'AGENT'}<Bot size={17} />{:else}<UserRound size={17} />{/if}</span><div><strong>{task.assignee ?? 'Unassigned'}</strong><p>{task.title}</p></div><div class="progress-meter"><i style={`width:${task.progress}%`}></i></div><em>{task.progress}%</em></article>
+      {/each}
+    </div>
   </section>
 
   <div class="command-grid">
@@ -282,6 +324,21 @@
       </div>
     </section>
   </div>
+
+  <section class="zao-constellation">
+    <header><div><p class="eyebrow">ZAO CONSTELLATION / TEAM CONTEXT</p><h2>One event, the whole movement behind it.</h2></div><span>ECOSYSTEM MAP</span></header>
+    <div class="constellation-grid">
+      <a href="https://bettercallzaal.com" target="_blank"><strong>ZAO OS</strong><small>Community + governance</small></a>
+      <a href="https://farcaster.xyz/zaal" target="_blank"><strong>WaveWarZ</strong><small>Artists + competition</small></a>
+      <a href="https://zabalgamez.com" target="_blank"><strong>ZABAL Gamez</strong><small>Builder arena</small></a>
+      <div class="constellation-core"><span>Z</span><strong>ZAOstock</strong><small>October 03 · Ellsworth</small></div>
+      <a href="https://bczyapz.com" target="_blank"><strong>BCZ YapZ</strong><small>Stories + signal</small></a>
+      <a href="https://github.com/bettercallzaal/zabalbot" target="_blank"><strong>ZABAL Bot</strong><small>Community interface</small></a>
+      <a href="https://github.com/ZAODEVZ/ZAOcowork" target="_blank"><strong>ZAOcowork</strong><small>Organization work</small></a>
+      <a href="/connect"><strong>ZOE</strong><small>Agent handoff</small></a>
+    </div>
+    <p class="constellation-note">This map is organizational context. Technical connections remain separately authenticated and verified.</p>
+  </section>
 
   <StatusStrip />
 </div>

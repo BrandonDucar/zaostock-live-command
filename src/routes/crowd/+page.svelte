@@ -17,7 +17,7 @@
 
 <div class="crowd-page">
   <section class="crowd-hero">
-    <div class="crowd-brand"><span>Z</span><strong>ZAOstock</strong><small>OCTOBER 03 · ATLANTA</small></div>
+    <div class="crowd-brand"><span>Z</span><strong>ZAOstock</strong><small>OCTOBER 03 · ELLSWORTH, MAINE</small></div>
     <span class="crowd-live"><i></i> FESTIVAL LIVE</span>
 
     {#if battleMode}
@@ -63,4 +63,3 @@
     </div>
   </section>
 </div>
-
