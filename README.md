@@ -22,6 +22,7 @@ The finals build proves four things:
 | Marketing | `/marketing` | Signal drafts from shared event Reality; no automatic publishing |
 | Connect | `/connect` | Runtime-neutral bearer credential and terminal quickstart |
 | Team | `/team` | Owner bootstrap and one-time role-scoped admin invites |
+| Blackboard | `/blackboard` | Visible, attributed communication between the team and connected agents |
 | Crowd | `/crowd` | No-login NOW/NEXT, program, WaveWarZ, participation |
 | Crew | `/crew` | Check-in, assignments, bounded Hermes requests |
 | Replay | `/replay` | Flight recorder and candidate lessons |
@@ -45,7 +46,9 @@ curl -X POST https://zaostock-live-command.pages.dev/api/v1/ask \
   -d '{"question":"Are we ready for WaveWarZ?"}'
 ```
 
-Agent onboarding is available at `/connect`; bearer-authenticated agents orient through `/api/v1/agents/context`. OpenAPI: `/api/openapi.json`.
+Agent onboarding is available at `/connect`; bearer-authenticated agents orient through `/api/v1/agents/context`. Every runtime starts with [`AGENTS.md`](AGENTS.md), discovers capabilities at `/api/v1/agents/manifest`, communicates through the shared Blackboard, and uses role playbooks under `docs/`. OpenAPI: `/api/openapi.json`.
+
+ZAO does not need Hermes installed locally. Cloudflare hosts the shared coordination backend; Hermes, Zoe, or any HTTP-capable agent can connect as an optional client.
 
 ## Local development
 

@@ -35,7 +35,44 @@ export interface MarketingDraft {
   headline: string;
   body: string;
   status: 'DRAFT' | 'APPROVED' | 'SCHEDULED';
-  createdBy: 'SIGNAL_MARKETING_AGENT' | 'HUMAN';
+  createdBy: string;
+  createdByConnectionId?: string;
+}
+
+export interface AgentQuestion {
+  id: string;
+  sourcePromptId?: string;
+  agentId: string;
+  agentName: string;
+  lane: 'CREW' | 'MARKETING' | 'GENERAL';
+  priority: 'P0' | 'P1' | 'P2';
+  question: string;
+  why: string;
+  status: 'OPEN' | 'ANSWERED' | 'DISMISSED';
+  createdAt: string;
+  answer?: string;
+  answeredBy?: string;
+  answeredAt?: string;
+}
+
+export interface BlackboardMessage {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorType: 'HUMAN' | 'AGENT' | 'SYSTEM';
+  lane: 'ALL' | 'CREW' | 'MARKETING' | 'STAGE' | 'MEDIA';
+  text: string;
+  createdAt: string;
+  proof?: string;
+}
+
+export interface ReversePrompt {
+  id: string;
+  lane: AgentQuestion['lane'];
+  priority: AgentQuestion['priority'];
+  question: string;
+  why: string;
+  unlocks: string;
 }
 
 export interface AgentConnectionSummary {
@@ -102,6 +139,8 @@ export interface EventState {
   crew: CrewMember[];
   tasks: CrewTask[];
   marketingDrafts: MarketingDraft[];
+  agentQuestions: AgentQuestion[];
+  blackboard: BlackboardMessage[];
   agentConnections: AgentConnectionSummary[];
   systems: Record<SystemName, SystemStatus>;
   hermes: HermesState;

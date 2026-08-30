@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { approveRecovery, claimTask, createInitialState, hermesAnswer, injectScenario } from './conductor';
+import { approveRecovery, askOperatorQuestion, claimTask, createInitialState, hermesAnswer, injectScenario, postBlackboardMessage, updateTaskByAgent } from './conductor';
+import { reversePromptsFor } from './agent-contract';
 
 describe('Hermes conductor', () => {
   it('requires human approval when stage drift threatens the hard start', () => {
@@ -36,5 +37,25 @@ describe('Hermes conductor', () => {
     const state = claimTask(createInitialState(), 'task-staff', 'Alex');
     expect(state.tasks.find((task) => task.id === 'task-staff')?.status).toBe('CLAIMED');
     expect(state.wire.at(-1)?.message).toContain('Alex');
+  });
+
+  it('lets a scoped crew agent claim its own work and requires proof to finish', () => {
+    const claimed = updateTaskByAgent(createInitialState(), { id: 'agent-1', name: 'Outside Crew' }, { id: 'task-staff', status: 'CLAIMED', progress: 5 });
+    expect(claimed.tasks.find((task) => task.id === 'task-staff')?.assigneeType).toBe('AGENT');
+    expect(() => updateTaskByAgent(claimed, { id: 'agent-1', name: 'Outside Crew' }, { id: 'task-staff', status: 'DONE', progress: 100 })).toThrow('Proof is required');
+  });
+
+  it('turns missing reality into a deduplicated operator question', () => {
+    const state = createInitialState();
+    const prompts = reversePromptsFor(state, ['write:marketing_drafts']);
+    expect(prompts.some((prompt) => prompt.id === 'marketing-public-lineup')).toBe(true);
+    const asked = askOperatorQuestion(state, { id: 'agent-2', name: 'Outside Marketing' }, { ...prompts[0] });
+    const duplicate = askOperatorQuestion(asked, { id: 'agent-2', name: 'Outside Marketing' }, { ...prompts[0] });
+    expect(duplicate.agentQuestions).toHaveLength(1);
+  });
+
+  it('records attributed agent communication on the Blackboard', () => {
+    const state = postBlackboardMessage(createInitialState(), { id: 'agent-3', name: 'Outside Agent', type: 'AGENT' }, { lane: 'ALL', text: 'I found a blocked task.' });
+    expect(state.blackboard.at(-1)).toMatchObject({ authorName: 'Outside Agent', authorType: 'AGENT', lane: 'ALL' });
   });
 });

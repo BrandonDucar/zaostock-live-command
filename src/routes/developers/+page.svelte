@@ -10,6 +10,10 @@
     { method: 'GET', path: '/api/v1/events', purpose: 'Machine-readable flight recorder for replay and proof.' },
     { method: 'POST', path: '/api/v1/agents/connect', purpose: 'Organizer creates a scoped one-time credential for any compatible agent runtime.' },
     { method: 'GET', path: '/api/v1/agents/context', purpose: 'Bearer-authenticated event briefing and role-scoped work queue.' },
+    { method: 'GET', path: '/api/v1/agents/manifest', purpose: 'Public runtime-neutral capabilities, actions, authority limits, and operating docs.' },
+    { method: 'POST', path: '/api/v1/agents/messages', purpose: 'Post an attributed update to the visible Blackboard.' },
+    { method: 'POST', path: '/api/v1/agents/questions', purpose: 'Ask the operator a focused question when Reality is missing.' },
+    { method: 'POST', path: '/api/v1/agents/tasks', purpose: 'Crew agents claim, progress, block, prove, or complete their own work.' },
     { method: 'GET', path: '/api/v1/health', purpose: 'Runtime and D1 binding health.' }
   ];
 
@@ -58,6 +62,7 @@ curl -X POST /api/v1/ask \
   -H "content-type: application/json" \
   -d '&#123;"question":"Are we ready for WaveWarZ?"&#125;'</code></pre>
       <a class="command-button red" href="/connect">Connect an agent <ExternalLink size={18} /></a>
+      <p><a href="https://github.com/BrandonDucar/zaostock-live-command" target="_blank">Read the public operating repository</a></p>
     </aside>
   </div>
 </div>

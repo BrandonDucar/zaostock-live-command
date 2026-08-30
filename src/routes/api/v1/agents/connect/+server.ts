@@ -2,6 +2,7 @@ import type { RequestHandler } from './$types';
 import { apiJson, optionsResponse } from '$lib/server/http';
 import { database, loadState, saveState } from '$lib/server/state';
 import { makeToken, sha256, teamIdentity } from '$lib/server/auth';
+import { scopesForProfile } from '$lib/agent-contract';
 
 export const GET: RequestHandler = async ({ platform }) => {
   const db = database(platform);
@@ -31,9 +32,7 @@ export const POST: RequestHandler = async ({ request, platform, url }) => {
   if (!name) return apiJson({ ok: false, error: 'Agent name is required' }, { status: 400 });
   const runtime = body.runtime?.trim() || 'CUSTOM';
   const capability = body.capability ?? 'OBSERVER';
-  const scopes = ['read:state', 'read:events', 'ask:hermes'];
-  if (capability === 'CREW') scopes.push('write:crew_tasks');
-  if (capability === 'MARKETING') scopes.push('write:marketing_drafts');
+  const scopes = scopesForProfile(capability);
   const id = crypto.randomUUID();
   const secret = makeToken('zao');
   const connectedAt = new Date().toISOString();

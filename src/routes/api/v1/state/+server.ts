@@ -13,14 +13,16 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     const body = await request.json() as Record<string, unknown>;
     const db = database(platform);
     const type = String(body.type ?? '');
-    const organizerWrites = ['approve', 'program_save', 'program_move', 'program_substitute', 'crew_save', 'crew_checkin', 'task_save', 'marketing_approve'];
-    if (organizerWrites.includes(type) && !await teamIdentity(request, db)) return apiJson({ ok: false, error: 'Organizer access required.' }, { status: 401 });
+    const organizerWrites = ['approve', 'program_save', 'program_move', 'program_substitute', 'crew_save', 'crew_checkin', 'task_save', 'marketing_approve', 'question_answer', 'blackboard_post'];
+    const organizer = organizerWrites.includes(type) || type === 'marketing_generate' ? await teamIdentity(request, db) : undefined;
+    if (organizerWrites.includes(type) && !organizer) return apiJson({ ok: false, error: 'Organizer access required.' }, { status: 401 });
     if (type === 'marketing_generate') {
-      const organizer = await teamIdentity(request, db);
       const agent = organizer ? undefined : await agentIdentity(request, db);
       if (!organizer && !agent?.scopes.includes('write:marketing_drafts')) return apiJson({ ok: false, error: 'Marketing scope required.' }, { status: 401 });
+      const state = await mutateState(db, body, organizer ? { id: organizer.id, name: organizer.name } : agent);
+      return apiJson({ ok: true, state, reality: state.mode === 'REHEARSAL' ? 'SIMULATED' : 'OBSERVED' });
     }
-    const state = await mutateState(db, body);
+    const state = await mutateState(db, body, organizer ? { id: organizer.id, name: organizer.name } : undefined);
     return apiJson({ ok: true, state, reality: state.mode === 'REHEARSAL' ? 'SIMULATED' : 'OBSERVED' });
   } catch (error) {
     return apiJson({ ok: false, error: error instanceof Error ? error.message : 'Invalid request' }, { status: 400 });

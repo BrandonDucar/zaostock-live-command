@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { BookOpen, Bot, CalendarRange, Command, Ellipsis, ListChecks, Megaphone, Radio, RotateCcw, Share2, UserRoundCog, Users } from 'lucide-svelte';
+  import { BookOpen, Bot, CalendarRange, Command, Ellipsis, ListChecks, Megaphone, MessageSquareText, Radio, RotateCcw, Share2, UserRoundCog, Users } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
 
   let { children }: { children: Snippet } = $props();
@@ -16,6 +16,7 @@
 
   const moreLinks = [
     { href: '/connect', label: 'Connect agent', icon: Bot },
+    { href: '/blackboard', label: 'Blackboard', icon: MessageSquareText },
     { href: '/team', label: 'Share with team', icon: Share2 },
     { href: '/crew', label: 'Crew view', icon: Users },
     { href: '/replay', label: 'Replay', icon: RotateCcw },

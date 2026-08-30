@@ -1,0 +1,11 @@
+# ZAOstock Live Command
+
+Public event operating room for humans and runtime-neutral agents.
+
+- Repository: https://github.com/BrandonDucar/zaostock-live-command
+- Agent operating contract: https://github.com/BrandonDucar/zaostock-live-command/blob/main/AGENTS.md
+- Agent manifest: https://zaostock-live-command.pages.dev/api/v1/agents/manifest
+- OpenAPI: https://zaostock-live-command.pages.dev/api/openapi.json
+- Shared Blackboard: https://zaostock-live-command.pages.dev/blackboard
+
+Start with the manifest. A scoped bearer token is required for agent writes. No agent profile grants publication, critical schedule changes, spending, or credential management.

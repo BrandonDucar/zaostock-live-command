@@ -1,6 +1,8 @@
 import type {
   CrewTask,
   CrewMember,
+  AgentQuestion,
+  BlackboardMessage,
   EventState,
   MarketingDraft,
   ProgramItem,
@@ -97,6 +99,18 @@ export function createInitialState(): EventState {
         body: 'Make your way to the Main Stage. The story begins at 4:00 PM, then the crowd helps carry the battle.',
         status: 'DRAFT',
         createdBy: 'SIGNAL_MARKETING_AGENT'
+      }
+    ],
+    agentQuestions: [],
+    blackboard: [
+      {
+        id: 'blackboard-welcome',
+        authorId: 'system',
+        authorName: 'Live Command',
+        authorType: 'SYSTEM',
+        lane: 'ALL',
+        text: 'Blackboard online. Humans and connected agents share context here; messages never grant new authority.',
+        createdAt: '2026-08-30T12:00:00.000Z'
       }
     ],
     agentConnections: [],
@@ -337,7 +351,7 @@ export function setCrewCheckIn(input: EventState, id: string, checkedIn: boolean
   return evaluateState(state);
 }
 
-export function generateMarketingDraft(input: EventState, programItemId: string, platform: MarketingDraft['platform']): EventState {
+export function generateMarketingDraft(input: EventState, programItemId: string, platform: MarketingDraft['platform'], actor = { id: 'signal', name: 'Signal' }): EventState {
   let state = structuredClone(input);
   const item = state.program.find((candidate) => candidate.id === programItemId);
   if (!item) return state;
@@ -349,10 +363,97 @@ export function generateMarketingDraft(input: EventState, programItemId: string,
     headline: `${item.title} starts in 20 minutes`,
     body: `Head to ${item.venue}. ${item.title} begins at ${formatTime(item.startMinute)}. Open ZAOstock Live Command for the current program and event updates.`,
     status: 'DRAFT',
-    createdBy: 'SIGNAL_MARKETING_AGENT'
+    createdBy: actor.name,
+    createdByConnectionId: actor.id
   };
   state.marketingDrafts.push(draft);
-  state = addWire(state, 'MARKETING', 'INFO', `Signal drafted ${platform} coverage for ${item.title}.`, `marketing-${draft.id}`);
+  state = addWire(state, 'MARKETING', 'INFO', `${actor.name} drafted ${platform} coverage for ${item.title}.`, `marketing-${draft.id}`);
+  return evaluateState(state);
+}
+
+export function updateTaskByAgent(
+  input: EventState,
+  actor: { id: string; name: string },
+  update: Pick<CrewTask, 'id' | 'status'> & Partial<Pick<CrewTask, 'progress' | 'proof' | 'blockedReason'>>
+): EventState {
+  let state = structuredClone(input);
+  const task = state.tasks.find((candidate) => candidate.id === update.id);
+  if (!task) throw new Error('Task not found.');
+  const isUnclaimed = task.status === 'QUEUED' && !task.assignee;
+  const isOwned = task.assigneeType === 'AGENT' && task.assignee === actor.name;
+  if (!isUnclaimed && !isOwned) throw new Error('Agent may only claim queued work or update work assigned to itself.');
+  if (update.status === 'DONE' && !update.proof?.trim() && !task.proof?.trim()) throw new Error('Proof is required before agent work can be marked DONE.');
+
+  task.assignee = actor.name;
+  task.assigneeType = 'AGENT';
+  task.status = update.status;
+  task.progress = Math.max(0, Math.min(100, Number(update.progress ?? task.progress) || 0));
+  if (update.proof?.trim()) task.proof = update.proof.trim().slice(0, 800);
+  if (update.blockedReason?.trim()) task.blockedReason = update.blockedReason.trim().slice(0, 500);
+  if (update.status !== 'BLOCKED') task.blockedReason = undefined;
+  state = addWire(state, 'TASKS', update.status === 'BLOCKED' ? 'WATCH' : 'INFO', `${actor.name} moved “${task.title}” to ${update.status}.`, `agent-task-${task.id}`);
+  return evaluateState(state);
+}
+
+export function askOperatorQuestion(
+  input: EventState,
+  actor: { id: string; name: string },
+  request: Pick<AgentQuestion, 'question' | 'why' | 'lane' | 'priority'> & { sourcePromptId?: string }
+): EventState {
+  let state = structuredClone(input);
+  const question = request.question.trim().slice(0, 500);
+  const why = request.why.trim().slice(0, 800);
+  if (!question || !why) throw new Error('Question and why are required.');
+  const duplicate = state.agentQuestions.find((item) => item.status === 'OPEN' && (item.sourcePromptId === request.sourcePromptId || item.question.toLowerCase() === question.toLowerCase()));
+  if (duplicate) return state;
+  state.agentQuestions.push({
+    id: `question-${Date.now()}-${crypto.randomUUID()}`,
+    sourcePromptId: request.sourcePromptId,
+    agentId: actor.id,
+    agentName: actor.name,
+    lane: request.lane,
+    priority: request.priority,
+    question,
+    why,
+    status: 'OPEN',
+    createdAt: new Date().toISOString()
+  });
+  state = addWire(state, 'HERMES', request.priority === 'P0' ? 'ACTION' : 'WATCH', `${actor.name} asked the operator: ${question}`, `question-${actor.id}`);
+  return evaluateState(state);
+}
+
+export function answerOperatorQuestion(input: EventState, id: string, answer: string, answeredBy: string): EventState {
+  let state = structuredClone(input);
+  const item = state.agentQuestions.find((candidate) => candidate.id === id);
+  if (!item) throw new Error('Question not found.');
+  if (!answer.trim()) throw new Error('Answer is required.');
+  item.answer = answer.trim().slice(0, 1200);
+  item.answeredBy = answeredBy;
+  item.answeredAt = new Date().toISOString();
+  item.status = 'ANSWERED';
+  state = addWire(state, 'HUMAN', 'INFO', `${answeredBy} answered ${item.agentName}'s ${item.lane.toLowerCase()} question.`, `answer-${id}`);
+  return evaluateState(state);
+}
+
+export function postBlackboardMessage(
+  input: EventState,
+  actor: { id: string; name: string; type: BlackboardMessage['authorType'] },
+  message: Pick<BlackboardMessage, 'lane' | 'text'> & { proof?: string }
+): EventState {
+  let state = structuredClone(input);
+  const text = message.text.trim().slice(0, 1600);
+  if (!text) throw new Error('Message text is required.');
+  state.blackboard = [...state.blackboard, {
+    id: `blackboard-${Date.now()}-${crypto.randomUUID()}`,
+    authorId: actor.id,
+    authorName: actor.name,
+    authorType: actor.type,
+    lane: message.lane,
+    text,
+    createdAt: new Date().toISOString(),
+    proof: message.proof?.trim().slice(0, 800) || undefined
+  }].slice(-200);
+  state = addWire(state, actor.type === 'AGENT' ? 'HERMES' : 'HUMAN', 'INFO', `${actor.name} posted to ${message.lane} on the Blackboard.`, `blackboard-${actor.id}`);
   return evaluateState(state);
 }
 

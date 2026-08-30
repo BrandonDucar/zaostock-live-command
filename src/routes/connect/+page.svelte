@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Check, Clipboard, KeyRound, PlugZap, ShieldCheck, Terminal } from 'lucide-svelte';
+  import { Bot, Check, Clipboard, KeyRound, PlugZap, ShieldCheck, Terminal } from 'lucide-svelte';
 
   const profiles = [
-    { id: 'OBSERVER', title: 'Observer', note: 'Read event state, program, work, and risks.' },
-    { id: 'CREW', title: 'Crew operator', note: 'Read context and participate in bounded crew work.' },
-    { id: 'MARKETING', title: 'Marketing', note: 'Read context and create drafts. Publishing remains gated.' }
+    { id: 'OBSERVER', title: 'Observer', note: 'Read Reality, monitor work, and communicate on the Blackboard.' },
+    { id: 'CREW', title: 'Crew operator', note: 'Claim crew work, report progress, ask questions, and leave proof.' },
+    { id: 'MARKETING', title: 'Marketing', note: 'Create drafts, ask for missing facts, and report visibly. Publishing stays gated.' }
   ];
   let name = $state('Event Agent');
   let runtime = $state('CUSTOM');
@@ -25,7 +25,7 @@
 
   function commandFor(mode: typeof commandMode, secret: string) {
     if (mode === 'CURL') return `export ZAOSTOCK_TOKEN='${secret}'\n\ncurl -s \\\n  -H "Authorization: Bearer $ZAOSTOCK_TOKEN" \\\n  ${baseUrl}/api/v1/agents/context`;
-    if (mode === 'INSTRUCTION') return `Connect to ZAOstock Live Command.\n\nBase URL: ${baseUrl}\nContext endpoint: /api/v1/agents/context\nBearer token: ${secret}\n\nStart by reading context. Work only inside the returned scopes. Leave proof for completed work. Never publish, spend money, or change the critical schedule without explicit authority.`;
+    if (mode === 'INSTRUCTION') return `Connect to ZAOstock Live Command.\n\nRepository: https://github.com/BrandonDucar/zaostock-live-command\nOperating guide: AGENTS.md\nManifest: ${baseUrl}/api/v1/agents/manifest\nContext endpoint: ${baseUrl}/api/v1/agents/context\nBearer token: ${secret}\n\nRead the operating guide and context first. Use reversePrompts to ask one high-value question when blocked. Post visible updates to the Blackboard. Work only inside returned scopes. Leave proof for completed work. Never publish, spend money, or change the critical schedule without explicit authority.`;
     return `$env:ZAOSTOCK_TOKEN='${secret}'\n\nInvoke-RestMethod -Headers @{ Authorization = "Bearer $env:ZAOSTOCK_TOKEN" } -Uri '${baseUrl}/api/v1/agents/context'`;
   }
 
@@ -71,4 +71,5 @@
     <pre>{command}</pre>
     <p>{token ? 'Run this from the agent machine. A successful response returns its identity, event context, work queue, scopes, and forbidden effects.' : 'Issue a credential above to replace the placeholder token.'}</p>
   </section>
+  <aside class="access-callout"><Bot size={22}/><div><strong>No Hermes installation required</strong><p>Cloudflare hosts the shared command backend. ZAO can connect Zoe, Hermes, a terminal agent, or any HTTP-capable runtime as a client.</p></div><a href="https://github.com/BrandonDucar/zaostock-live-command" target="_blank" class="command-button red">Open public repo</a></aside>
 </div>

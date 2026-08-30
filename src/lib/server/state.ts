@@ -1,5 +1,7 @@
 import {
   approveMarketingDraft,
+  answerOperatorQuestion,
+  postBlackboardMessage,
   approveRecovery,
   claimTask,
   createInitialState,
@@ -48,6 +50,8 @@ export async function loadState(db?: Database): Promise<{ state: EventState; sou
         return { ...task, progress: task.progress ?? (legacyStatus === 'DONE' ? 100 : 0), status: legacyStatus === 'OPEN' ? 'QUEUED' : legacyStatus } as CrewTask;
       }),
       marketingDrafts: parsed.marketingDrafts ?? baseline.marketingDrafts,
+      agentQuestions: parsed.agentQuestions ?? baseline.agentQuestions,
+      blackboard: parsed.blackboard ?? baseline.blackboard,
       agentConnections: parsed.agentConnections ?? baseline.agentConnections,
       systems: { ...baseline.systems, ...(parsed.systems ?? {}) }
     };
@@ -76,7 +80,7 @@ export async function saveState(db: Database | undefined, state: EventState): Pr
   return 'D1';
 }
 
-export async function mutateState(db: Database | undefined, body: Record<string, unknown>): Promise<EventState> {
+export async function mutateState(db: Database | undefined, body: Record<string, unknown>, actor?: { id: string; name: string }): Promise<EventState> {
   const loaded = await loadState(db);
   let state = loaded.state;
   const type = String(body.type ?? '');
@@ -90,8 +94,10 @@ export async function mutateState(db: Database | undefined, body: Record<string,
   else if (type === 'crew_save') state = saveCrewMember(state, body.member as CrewMember);
   else if (type === 'crew_checkin') state = setCrewCheckIn(state, String(body.id ?? ''), Boolean(body.checkedIn));
   else if (type === 'task_save') state = saveTask(state, body.task as CrewTask);
-  else if (type === 'marketing_generate') state = generateMarketingDraft(state, String(body.programItemId ?? ''), String(body.platform ?? 'FARCASTER') as MarketingDraft['platform']);
+  else if (type === 'marketing_generate') state = generateMarketingDraft(state, String(body.programItemId ?? ''), String(body.platform ?? 'FARCASTER') as MarketingDraft['platform'], actor);
   else if (type === 'marketing_approve') state = approveMarketingDraft(state, String(body.id ?? ''));
+  else if (type === 'question_answer') state = answerOperatorQuestion(state, String(body.id ?? ''), String(body.answer ?? ''), actor?.name ?? 'Organizer');
+  else if (type === 'blackboard_post') state = postBlackboardMessage(state, { id: actor?.id ?? 'organizer', name: actor?.name ?? 'Organizer', type: 'HUMAN' }, { lane: String(body.lane ?? 'ALL') as 'ALL' | 'CREW' | 'MARKETING' | 'STAGE' | 'MEDIA', text: String(body.text ?? ''), proof: body.proof ? String(body.proof) : undefined });
   else if (type === 'reset') state = createInitialState();
   else throw new Error('Unsupported mutation type.');
 
