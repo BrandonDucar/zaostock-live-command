@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://zaostock-live-command.pages.dev/sitemap.xml
+

@@ -1,0 +1,9 @@
+name = "zaostock-live-command"
+compatibility_date = "2026-08-30"
+pages_build_output_dir = ".svelte-kit/cloudflare"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "zaostock-live-command"
+database_id = "84cd293e-5e36-4064-9d86-0c3bffac325d"
+

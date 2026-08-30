@@ -1,0 +1,33 @@
+{
+  "name": "zaostock-live-command",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name zaostock-live-command",
+    "db:migrate:local": "wrangler d1 migrations apply zaostock-live-command --local",
+    "db:migrate:remote": "wrangler d1 migrations apply zaostock-live-command --remote"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "latest",
+    "@sveltejs/adapter-cloudflare": "latest",
+    "@sveltejs/kit": "latest",
+    "@types/node": "latest",
+    "svelte": "latest",
+    "svelte-check": "latest",
+    "typescript": "latest",
+    "vite": "latest",
+    "vitest": "latest",
+    "wrangler": "latest"
+  },
+  "dependencies": {
+    "@farcaster/miniapp-sdk": "latest",
+    "lucide-svelte": "latest"
+  }
+}
