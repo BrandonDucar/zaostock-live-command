@@ -8,7 +8,7 @@
     { method: 'POST', path: '/api/v1/state', purpose: 'Inject scenario, approve recovery, claim crew task, or reset rehearsal.' },
     { method: 'POST', path: '/api/v1/ask', purpose: 'Ask deterministic operational questions over current event Reality.' },
     { method: 'GET', path: '/api/v1/events', purpose: 'Machine-readable flight recorder for replay and proof.' },
-    { method: 'POST', path: '/api/v1/agents/connect', purpose: 'Organizer creates a scoped one-time credential for ZOE, ZABAL Bot, or another agent.' },
+    { method: 'POST', path: '/api/v1/agents/connect', purpose: 'Organizer creates a scoped one-time credential for any compatible agent runtime.' },
     { method: 'GET', path: '/api/v1/agents/context', purpose: 'Bearer-authenticated event briefing and role-scoped work queue.' },
     { method: 'GET', path: '/api/v1/health', purpose: 'Runtime and D1 binding health.' }
   ];

@@ -40,7 +40,7 @@
   },
   "remainingExternalProof": [
     "Zaal claims the one-time OWNER invite",
-    "Owner creates a scoped ZOE or ZABAL Bot connection",
+    "Owner creates a scoped connection for an external agent runtime",
     "External agent authenticates to /api/v1/agents/context",
     "Agent completes bounded work and leaves independently reviewed proof",
     "An organizer replaces all rehearsal lineup fixtures with confirmed data"

@@ -20,7 +20,7 @@ The finals build proves four things:
 | Staff | `/staff` | Roles, shifts, assignments, and check-ins |
 | Work | `/work` | Human and agent work in queue, active, blocked, proof, and done |
 | Marketing | `/marketing` | Signal drafts from shared event Reality; no automatic publishing |
-| Connect | `/connect` | Scoped handoff to ZOE, ZABAL Bot, Zaal's agent, or custom workers |
+| Connect | `/connect` | Runtime-neutral bearer credential and terminal quickstart |
 | Team | `/team` | Owner bootstrap and one-time role-scoped admin invites |
 | Crowd | `/crowd` | No-login NOW/NEXT, program, WaveWarZ, participation |
 | Crew | `/crew` | Check-in, assignments, bounded Hermes requests |

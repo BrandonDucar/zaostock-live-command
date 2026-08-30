@@ -56,7 +56,7 @@ const program: ProgramItem[] = [
 
 const tasks: CrewTask[] = [
   { id: 'task-lineup', title: 'Replace rehearsal artist slots with confirmed lineup', location: 'Program workspace', dueMinute: 11 * 60, durationMinutes: 25, capability: 'ADMIN', status: 'ACTIVE', assignee: 'Zaal', assigneeType: 'HUMAN', progress: 45 },
-  { id: 'task-agent-handoff', title: 'Connect ZOE or ZABAL Bot to shared event context', location: 'Agent gateway', dueMinute: 11 * 60 + 15, durationMinutes: 12, capability: 'AGENT', status: 'ACTIVE', assignee: 'Hermes', assigneeType: 'AGENT', progress: 68 },
+  { id: 'task-agent-handoff', title: 'Connect an authorized agent to shared event context', location: 'Agent gateway', dueMinute: 11 * 60 + 15, durationMinutes: 12, capability: 'AGENT', status: 'ACTIVE', assignee: 'Hermes', assigneeType: 'AGENT', progress: 68 },
   { id: 'task-staff', title: 'Confirm event staff roles and shift coverage', location: 'Staff workspace', dueMinute: 11 * 60 + 30, durationMinutes: 20, capability: 'CREW', status: 'QUEUED', progress: 10 },
   { id: 'task-marketing', title: 'Prepare first lineup reveal draft', location: 'Marketing workspace', dueMinute: 12 * 60, durationMinutes: 15, capability: 'MARKETING', status: 'PROOF', assignee: 'Signal', assigneeType: 'AGENT', progress: 92, proof: 'Draft awaiting organizer approval; nothing published.' },
   { id: 'task-sitewalk', title: 'Map day-of crew stations at Franklin Street Parklet', location: 'Ellsworth, Maine', dueMinute: 13 * 60, durationMinutes: 30, capability: 'PRODUCTION', status: 'BLOCKED', assignee: 'Event Admin', assigneeType: 'HUMAN', progress: 20, blockedReason: 'Requires an on-site walk or organizer floor plan.' },

@@ -142,10 +142,10 @@
   <div class="intro-overlay" role="dialog" aria-modal="true" aria-labelledby="intro-title">
     <div class="intro-sheet">
       <p class="eyebrow">ZAOSTOCK / TEAM OPERATING ROOM</p>
-      <h1 id="intro-title">Build the lineup. Bring the crew. Hand it to ZOE.</h1>
+      <h1 id="intro-title">Build the lineup. Bring the crew. Connect any agent.</h1>
       <p>Start with the program and people, connect Zaal's agent, then watch humans and agents move the work together. Rehearsal mode lets the team break the event before the crowd arrives.</p>
       <div class="intro-steps">
-        <span><strong>01</strong> Connect ZOE or your agent</span>
+        <span><strong>01</strong> Connect an authorized agent</span>
         <span><strong>02</strong> Build lineup and staff</span>
         <span><strong>03</strong> Run work and rehearsal</span>
       </div>
@@ -335,7 +335,7 @@
       <a href="https://bczyapz.com" target="_blank"><strong>BCZ YapZ</strong><small>Stories + signal</small></a>
       <a href="https://github.com/bettercallzaal/zabalbot" target="_blank"><strong>ZABAL Bot</strong><small>Community interface</small></a>
       <a href="https://github.com/ZAODEVZ/ZAOcowork" target="_blank"><strong>ZAOcowork</strong><small>Organization work</small></a>
-      <a href="/connect"><strong>ZOE</strong><small>Agent handoff</small></a>
+      <a href="/connect"><strong>Agent API</strong><small>Runtime-neutral handoff</small></a>
     </div>
     <p class="constellation-note">This map is organizational context. Technical connections remain separately authenticated and verified.</p>
   </section>
