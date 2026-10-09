@@ -2,7 +2,9 @@
 
 ![ZAOstock Live Command](static/social-card.png)
 
-ZAOstock Live Command is a live event operating room: one shared event Reality for stage, crew, WaveWarZ, organizers, and community agents. ZAOstock is scheduled for October 3, 2026 at Franklin Street Parklet in Ellsworth, Maine.
+ZAOstock Live Command is an event operating room: shared operational state for stage, crew, WaveWarZ, organizers, and community agents. Originally built around the October 3, 2026 ZAOstock event at Franklin Street Parklet in Ellsworth, Maine. That date is historical context, not evidence that the software ran the event.
+
+[Project homepage](https://brandonducar.github.io/BrandonDucar/projects/zaostock-live-command/) | [Agent onboarding contract](AGENTS.md)
 
 The finals build proves four things:
 
