@@ -88,3 +88,7 @@ npm run deploy
 ## Stack
 
 SvelteKit, TypeScript, Cloudflare Pages, Cloudflare D1, Vitest, Lucide, and the Farcaster Mini App SDK.
+
+## License
+
+Original software and project documentation are licensed under Apache-2.0. See [LICENSE](LICENSE). See [NOTICE](NOTICE) for attribution, licensing scope and third-party/media exclusions.
